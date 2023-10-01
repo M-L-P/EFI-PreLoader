@@ -1,13 +1,13 @@
-name: 构建
+name: 构建 GrubPreLoader_CLOVER.efi
 
 on:
   push:
-    branches: [ "Yours" ]
+    branches: [ "Clover" ]
     paths:
       - ".github/workflows/构建.yml"
       - "efi-tools-patches/*"
   pull_request:
-    branches: [ "Yours" ]
+    branches: [ "Clover" ]
     paths:
       - ".github/workflows/构建.yml"
       - "efi-tools-patches/*"
@@ -16,8 +16,8 @@ jobs:
   build:
     strategy:
       matrix:
-        target: [Yours_x64.efi]
-        filename: [grubx64_real.efi]
+        target: [CLOVERX64.efi]
+        filename: [GrubPreLoader_CLOVER.efi]
 
     name: 构建 PreLoader 链接到 ${{ matrix.target }}
     runs-on: ubuntu-latest
