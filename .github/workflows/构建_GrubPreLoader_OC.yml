@@ -1,0 +1,58 @@
+name: 构建 GrubPreLoader_OC.efi
+on:
+  push:
+    branches: [ "OpenCore" ]
+    paths:
+      - ".github/workflows/构建_GrubPreLoader_OC.yml"
+      - "efi-tools-patches/*"
+  pull_request:
+    branches: [ "OpenCore" ]
+    paths:
+      - ".github/workflows/构建_GrubPreLoader_OC.yml"
+      - "efi-tools-patches/*"
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        target: [OpenCore.efi]
+        filename: [GrubPreLoader_OC.efi]
+
+    name: 构建 PreLoader 链接到 ${{ matrix.target }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 安装工具包
+      run: |
+        sudo apt-get install gnu-efi
+        sudo apt-get install libfile-slurp-perl
+    
+    - uses: actions/checkout@v3
+    - name: 克隆 efitools
+      run: git clone https://git.kernel.org/pub/scm/linux/kernel/git/jejb/efitools.git
+    - name: 应用补丁
+      run: |
+        sudo patch ./efitools/PreLoader.c ./efi-tools-patches/preloader.c.patch
+        sudo patch ./efitools/lib/security_policy.c ./efi-tools-patches/security-policy.c.patch
+        sudo mv ./efitools/doc/cert-to-efi-hash-list.1.in cert-to-efi-hash-list.1
+        sudo mv ./efitools/doc/cert-to-efi-sig-list.1.in cert-to-efi-sig-list.1
+        sudo mv ./efitools/doc/efi-readvar.1.in efi-readvar.1
+        sudo mv ./efitools/doc/efi-updatevar.1.in efi-updatevar.1
+        sudo mv ./efitools/doc/hash-to-efi-sig-list.1.in hash-to-efi-sig-list.1
+        sudo mv ./efitools/doc/sig-list-to-certs.1.in sig-list-to-certs.1
+        sudo mv ./efitools/doc/sign-efi-sig-list.1.in sign-efi-sig-list.1
+        cd ./efitools
+        make
+        ls -l
+    - name: 构建 ${{ matrix.filename }}
+      run: |
+        cd efitools
+        cc -I./include/ -I/usr/include/efi -I/usr/include/efi/x86_64 -I/usr/include/efi/protocol -O2 -g  -fpic -Wall -fshort-wchar -fno-strict-aliasing -fno-merge-constants -fno-stack-protector -ffreestanding -fno-stack-check -DGNU_EFI_USE_MS_ABI -DEFI_FUNCTION_WRAPPER -mno-red-zone -DCONFIG_x86_64 -c PreLoader.c -o PreLoader.o
+        ld -nostdlib -shared -Bsymbolic /lib/crt0-efi-x86_64.o -L /lib -L /usr/lib -L /usr/lib64 -T elf_x86_64_efi.lds PreLoader.o lib/lib-efi.a -o PreLoader.so -lefi -lgnuefi /usr/lib/gcc/x86_64-linux-gnu/11/libgcc.a
+        objcopy -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j '.rel.*' -j '.rela.*' -j '.rel*' -j '.rela*' -j .reloc --target=efi-app-x86_64 PreLoader.so PreLoader.efi
+        sudo mv ./PreLoader.efi ../${{ matrix.filename }}
+    - name: 上传到此处
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        name: ${{ matrix.filename }}
+        path: ./${{ matrix.filename }}
