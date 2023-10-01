@@ -46,14 +46,14 @@ jobs:
         make
         ls -l
     - name: 构建 ${{ matrix.filename }}
-      working-directory: efitools
       run: |
+        cd efitools
         cc -I./include/ -I/usr/include/efi -I/usr/include/efi/x86_64 -I/usr/include/efi/protocol -O2 -g  -fpic -Wall -fshort-wchar -fno-strict-aliasing -fno-merge-constants -fno-stack-protector -ffreestanding -fno-stack-check -DGNU_EFI_USE_MS_ABI -DEFI_FUNCTION_WRAPPER -mno-red-zone -DCONFIG_x86_64 -c PreLoader.c -o PreLoader.o
         ld -nostdlib -shared -Bsymbolic /lib/crt0-efi-x86_64.o -L /lib -L /usr/lib -L /usr/lib64 -T elf_x86_64_efi.lds PreLoader.o lib/lib-efi.a -o PreLoader.so -lefi -lgnuefi /usr/lib/gcc/x86_64-linux-gnu/11/libgcc.a
         objcopy -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j '.rel.*' -j '.rela.*' -j '.rel*' -j '.rela*' -j .reloc --target=efi-app-x86_64 PreLoader.so PreLoader.efi
-        sudo mv PreLoader.efi ../${{ matrix.filename }}
+        sudo mv ./PreLoader.efi ../${{ matrix.filename }}
     - name: 上传到此处
       uses: actions/upload-artifact@v3.1.0
       with:
         name: ${{ matrix.filename }}
-        path: ./
+        path: ./${{ matrix.filename }}
