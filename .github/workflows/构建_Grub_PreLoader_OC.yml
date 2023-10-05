@@ -1,15 +1,15 @@
-name: 构建 GrubPreLoader_OC.efi
+name: 构建 Grub_PreLoader_OC.efi
 
 on:
   push:
     branches: [ "OpenCore" ]
     paths:
-      - ".github/workflows/构建_GrubPreLoader_OC.yml"
+      - ".github/workflows/构建_Grub_PreLoader_OC.yml"
       - "efi-tools-patches/*"
   pull_request:
     branches: [ "OpenCore" ]
     paths:
-      - ".github/workflows/构建_GrubPreLoader_OC.yml"
+      - ".github/workflows/构建_Grub_PreLoader_OC.yml"
       - "efi-tools-patches/*"
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         target: [OpenCore.efi]
-        filename: [GrubPreLoader_OC.efi]
+        filename: [Grub_PreLoader_OC.efi]
 
     name: 构建 PreLoader 链接到 ${{ matrix.target }}
     runs-on: ubuntu-latest
