@@ -8,7 +8,7 @@
 -
 -CHAR16 *loader = L"loader.efi";
 -CHAR16 *hashtool = L"HashTool.efi";
-+CHAR16 *loader = L"..\\..\\OC\\OpenCore.efi";
++CHAR16 *loader = L"..\\..\\..\\OC\\OpenCore.efi";
  
  EFI_STATUS
  efi_main (EFI_HANDLE image, EFI_SYSTEM_TABLE *systab)
