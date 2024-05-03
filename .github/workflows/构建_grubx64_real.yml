@@ -2,12 +2,12 @@ name: 构建 grubx64_real.efi
 
 on:
   push:
-    branches: [ "Yours" ]
+    branches: [ "grub2-androidx86-USB" ]
     paths:
       - ".github/workflows/构建_grubx64_real.yml"
       - "efi-tools-patches/*"
   pull_request:
-    branches: [ "Yours" ]
+    branches: [ "grub2-androidx86-USB" ]
     paths:
       - ".github/workflows/构建_grubx64_real.yml"
       - "efi-tools-patches/*"
@@ -16,7 +16,7 @@ jobs:
   build:
     strategy:
       matrix:
-        target: [Yours_x64.efi]
+        target: [grub2-androidx86-USB.efi]
         filename: [grubx64_real.efi]
 
     name: 构建 PreLoader 链接到 ${{ matrix.target }}
@@ -28,7 +28,7 @@ jobs:
         sudo apt-get install gnu-efi
         sudo apt-get install libfile-slurp-perl
     
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: 克隆 efitools
       run: git clone https://git.kernel.org/pub/scm/linux/kernel/git/jejb/efitools.git
     - name: 应用补丁
@@ -53,7 +53,7 @@ jobs:
         objcopy -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j '.rel.*' -j '.rela.*' -j '.rel*' -j '.rela*' -j .reloc --target=efi-app-x86_64 PreLoader.so PreLoader.efi
         sudo mv ./PreLoader.efi ../${{ matrix.filename }}
     - name: 上传到此处
-      uses: actions/upload-artifact@v3.1.0
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.filename }}
         path: ./${{ matrix.filename }}
